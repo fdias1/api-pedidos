@@ -50,7 +50,7 @@ const isNotAuthenticated = (req,res,next) => {
 }
 
 app.set('view engine','ejs')
-app.set('views',__dirname+'\\views')
+app.set('views',__dirname+'/views')
 app.use(urlencoded({extended:false}))
 app.use(json())
 app.use(flash())
