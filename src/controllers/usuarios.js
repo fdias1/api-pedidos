@@ -1,47 +1,12 @@
 const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
-const passport = require('passport')
-const { authenticate } = require('passport')
-const localStrategy = require('passport-local').Strategy
 const Usuario = require('../models/usuario')
+const {checarCredenciais} = require('./auth')
 
-//função de autenticação
-const autenticar = async (email, senha, done) => {
-    try {
-        if (!email || !senha) {
-            return done(null,false,{message:'É necessário preencher usuário e senha'})
-        }
-        const usuario = await Usuario.findOne({email})
-        if (usuario) {
-            const autenticado = bcrypt.compareSync(senha,usuario.senha)
-            if (autenticado) {
-                return done(null,usuario)
-            } else {
-                return done(null,false,{message:'Usuário ou senha incorretos'})
-            }
-        } else {
-            return done(null,false,{message:'Usuário ou senha incorretos'})
-        }
-    } catch (err) {
-        done(err)
-    }
-}
-
-// configuração da nova estratégia
-passport.use(new localStrategy({ usernameField:'email',passwordField:'senha'},
-autenticar))
-
-passport.serializeUser((usuario,done) => {
-    done(null,usuario.id)
-})
-passport.deserializeUser(async (id,done) => {
-    const usuario = await Usuario.findOne({_id:id})
-    return done(null, usuario)
-})
 
 // funções das rotas
-const registrar = (req,res) => {
+const criar = (req,res) => {
     const {
         nome,
         sobrenome,
@@ -68,38 +33,56 @@ const registrar = (req,res) => {
     })
 }
 
-const logOut = (req,res) => {
-    req.logOut()
-    res.redirect('/usuarios/login')
-}
-
-const isAuthenticated = (req,res,next) => {
-    if (req.isAuthenticated()) {
-        next()
-    } else {
-        res.redirect('/login')
+const ler = async (req,res,next) => {
+    try {
+        const usuario = await Usuario.findOne({_id:req.params.usuario})
+        if (usuario) {
+            res.status(200).send(usuario)
+        } else {
+            res.status(400).send({message:'Usuário não encontrado'})   
+        }
+    } catch (err) {
+        res.status(400).send({message:'Erro ao realizar a operação'})   
     }
 }
 
-const isNotAuthenticated = (req,res,next) => {
-    if (!req.isAuthenticated()) {
-        next()
-    } else {
-        res.redirect('/')
+const lerTodos = async (req,res,next) => {
+    try {
+        const usuarios = await Usuario.find({})
+        if (usuarios) {
+            res.status(200).send(usuarios)
+        } else {
+            res.status(400).send({message:'Não foram encontrados usuarios'})   
+        }
+    } catch (err) {
+        res.status(400).send({message:'Erro ao realizar a operação'})   
+    }
+}
+
+const editar = async (req,res,next) => {
+    try {
+        const updatedUsuario = await Usuario.updateOne(req.params.id,req.body)
+        res.status(200).send(updatedUsuario)   
+    } catch (err) {
+        res.status(400).send({message:'Erro ao realizar a operação'})   
+    }
+}
+
+const deletar = async (req,res,next) => {
+    try {
+        const deletedUsuario = await Usuario.deleteOne(req.params.id)
+        res.status(200).send(deletedUsuario)
+    } catch (err) {
+        res.status(400).send({message:'Erro ao realizar a operação'})   
     }
 }
 
 // configuração das rotas
-const passportAuthConfiguration = {
-    successRedirect:'/',
-    failureRedirect:'/usuarios/login',
-    failureFlash:true
-}
-
-router.post('/registrar',isNotAuthenticated,registrar)
-router.post('/login',isNotAuthenticated,passport.authenticate('local',passportAuthConfiguration))
-router.get('/login',isNotAuthenticated,(req,res) => res.render('./usuarios/login.ejs',{user:req.user}))
-router.get('/registrar',isNotAuthenticated,(req,res) => res.render('./usuarios/registrar.ejs'))
-router.get('/logout',logOut)
+router.post('/',criar)
+router.use(checarCredenciais(1))
+router.get('/:usuario',ler)
+router.get('/',checarCredenciais(2),lerTodos)
+router.put('/:usuario',editar)
+router.delete('/:usuario',checarCredenciais(2),deletar)
 
 module.exports = router
