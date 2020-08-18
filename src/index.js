@@ -1,5 +1,6 @@
 //.env configuration
-require('dotenv').config()
+process.env.NODE_ENV !== 'prd' ? require('dotenv').config() : null
+
 const port = process.env.PORT || 3000
 
 //express
@@ -38,12 +39,14 @@ const auth = require('./controllers/auth').router
 const usuarios = require('./controllers/usuarios')
 const clientes = require('./controllers/clientes')
 const escolhas = require('./controllers/escolhas')
+const produtos = require('./controllers/produtos')
 
 // routes cofiguration
 app.use('/auth',auth)
 app.use('/usuarios',usuarios)
 app.use('/clientes',clientes)
 app.use('/escolhas',escolhas)
+app.use('/produtos',produtos)
 
 // starting app
 app.listen(port, console.log(`Connected and listening port ${port}`))
