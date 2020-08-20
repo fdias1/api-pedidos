@@ -1,5 +1,8 @@
 const mongoose = require('mongoose')
 
+const cpfRegExp = /[\d]{11}/
+const cnpjRegExp = /[\d]{14}/
+
 const usuarioSchema = new mongoose.Schema({
     nome:{
         type:String,
@@ -21,12 +24,16 @@ const usuarioSchema = new mongoose.Schema({
     documento:{
         type:String,
         required:true,
-        unique:true
+        unique:true,
+        validate: [(valor) => {
+            return cpfRegExp.test(valor) || cnpjRegExp.test(valor)
+        },'Documento inválido']
     },
     tipoDocumento:{
         type:String,
-        enum:['cpf','cnpj'],
+        enum:['pf','pj'],
         required:true,
+        lowercase:true
     },
     dataCriacao:{
         type:Date,

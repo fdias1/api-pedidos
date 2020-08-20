@@ -25,7 +25,7 @@ const criar = async (req,res,next) => {
 
 const ler = async (req,res) => {
     try {
-        const cliente = await Cliente.findOne({_id:req.params.cliente})
+        const cliente = await Cliente.findOne({telefone:req.params.cliente})
         if (cliente) {
             res.status(200).send(cliente)
         } else {
@@ -51,7 +51,7 @@ const lerTodos = async (req,res) => {
 
 const editar = async (req,res,next) => {
     try {
-        const updatedCliente = await Cliente.updateOne({_id:req.params.cliente},req.body)
+        const updatedCliente = await Cliente.updateOne({telefone:req.params.cliente},req.body)
         res.status(200).send(updatedCliente)
     } catch (err) {
         res.status(400).send({message:'Erro ao realizar operação'})
@@ -60,7 +60,7 @@ const editar = async (req,res,next) => {
 
 const deletar = async (req,res,next) => {
     try {
-        const deletedCliente = await Cliente.deleteOne({_id:req.params.cliente})
+        const deletedCliente = await Cliente.deleteOne({telefone:req.params.cliente})
         res.status(200).send(deletedCliente)
     } catch (err) {
         res.status(400).send({message:'Erro ao realizar operação'})
@@ -88,10 +88,10 @@ const cadastrarEndereco = async (req,res,next) => {
             numero,
             uf
         })
-        const cliente = await Cliente.findOne({_id:req.params.cliente})
+        const cliente = await Cliente.findOne({telefone:req.params.cliente})
         cliente.enderecos.push(endereco)
         const enderecos = cliente.enderecos
-        const updatedCliente = await Cliente.updateOne({_id:req.params.cliente},{enderecos})
+        const updatedCliente = await Cliente.updateOne({telefone:req.params.cliente},{enderecos})
         res.status(200).send(updatedCliente)
     } catch (err) {
         res.status(400).send({message:'Erro ao realizar a operação'})
@@ -101,7 +101,7 @@ const cadastrarEndereco = async (req,res,next) => {
 const excluirEndereco = async (req,res,next) => {
     try {
         const index = req.params.index
-        const cliente = await Cliente.findOne({_id:req.params.cliente})
+        const cliente = await Cliente.findOne({telefone:req.params.cliente})
         if (index >= cliente.enderecos.length || index < 0) {
             res.status(400).send({message:'Falha ao alterar endereco'})
         } else {
@@ -111,7 +111,7 @@ const excluirEndereco = async (req,res,next) => {
              * todo o array de volta ao objeto
              */
             const novoEnderecos = cliente.enderecos.filter((valor,indiceAtual) => index != indiceAtual)
-            const updatedCliente = await Cliente.updateOne(req.body.cliente,{enderecos:novoEnderecos})
+            const updatedCliente = await Cliente.updateOne({telefone:req.params.cliente},{enderecos:novoEnderecos})
             res.status(200).send(updatedCliente)
         }        
     } catch (err) {
@@ -122,7 +122,7 @@ const excluirEndereco = async (req,res,next) => {
 const editarEndereco = async (req,res,next) => {
     try {
         const index = req.params.index
-        const cliente = await Cliente.findOne({_id:req.params.cliente})
+        const cliente = await Cliente.findOne({telefone:req.params.cliente})
         if (index >= cliente.enderecos.length || index < 0) {
             res.status(400).send({message:'Falha ao alterar endereco'})
         } else {
@@ -147,7 +147,7 @@ const editarEndereco = async (req,res,next) => {
             })
             cliente.enderecos[index] = endereco
             const enderecos = cliente.enderecos
-            const updatedCliente = await Cliente.updateOne({_id:req.params.cliente},{enderecos})
+            const updatedCliente = await Cliente.updateOne({telefone:req.params.cliente},{enderecos})
             res.status(200).send(updatedCliente)
         }
     } catch (err) {

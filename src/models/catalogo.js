@@ -34,7 +34,12 @@ const catalogoSchema = new mongoose.Schema({
         fundoPri:String,
         fundoSec:String
     },
-    
+    link:{
+        type:String,
+        required:true,
+        unique:true,
+        default:Date.now().toString()
+    },
     rotina:{
         domingo:{
             aberto:String,
