@@ -22,10 +22,6 @@ const criar = async (req,res) => {
         escolhas,
         usuario:req.user.id
     })
-    const usuario = await Usuario.findOne({_id:req.user.id})
-    const produtos = usuario.produtos
-    produtos.push(produto.id)
-    await Usuario.updateOne({_id:produto.usuario},{produtos})
     produto.save((err,novoProduto) => {
         if(err) {
             res.status(400).send(err)
@@ -57,6 +53,15 @@ const lerTodos = async (req,res) => {
     }
 }
 
+const lerTodosPorUsuario = async (req,res) => {
+    try {
+        const produto = await Produto.find({usuario:req.user.id})
+        res.status(200).send(produto)
+    } catch (err) {
+        res.status(400).send({message:'Erro ao realizar operação'})
+    }
+}
+
 const editar = async (req,res) => {
     try {
         const updatedProduto = await Produto.updateOne({_id:req.params.produto},req.body)
@@ -68,11 +73,6 @@ const editar = async (req,res) => {
 
 const deletar = async (req,res) => {
     try {
-        const produto = await Produto.findOne({_id:req.params.produto})
-        const usuario = await Usuario.findOne({_id:produto.usuario})
-        const produtos = usuario.produtos
-        const updatedProdutos = produtos.filter(idProduto => idProduto != req.params.produto)
-        Usuario.updateOne({_id:produto.usuario},{produtos:updatedProdutos})
         const deletedProduto = await produto.deleteOne({_id:req.params.produto})
         res.status(200).send(deletedProduto)
     } catch (err) {
@@ -80,16 +80,40 @@ const deletar = async (req,res) => {
     }
 }
 
-/**
- * TO DO: funções de atrelar e desatrelar escolhas aos produtos.
- */
+const atrelarEscolha = async (req,res) => {
+    try {
+        const produto = await Produto.findOne({_id:req.params.produto})
+        const escolhas = produto.escolhas
+        escolhas.push(req.query.escolha)
+        await Produto.updateOne({_id:req.params.produto},{escolhas})
+        res.status(200).send({message:"Escolha atrelada"})
+    } catch (err) {
+        res.status(400).send({message:'Erro ao realizar operação'})
+    }
+}
+
+const removerEscolha = async (req,res) => {
+    try {
+        const produto = await Produto.findOne({_id:req.params.produto})
+        let escolhas = produto.escolhas
+        escolhas = escolhas.filter(escolha => escolha != req.query.escolha)
+        await Produto.updateOne({_id:req.params.produto},{escolhas})
+        res.status(200).send({message:"Escolha removida"})
+    } catch (err) {
+        res.status(400).send({message:'Erro ao realizar operação'})
+    }
+}
 
 //rotas
-//router.use(checarCredenciais(1))
+router.use(checarCredenciais(1))
 router.post('/',criar)
+router.get('/this',lerTodosPorUsuario)
 router.get('/:produto',ler)
-router.get('/',checarCredenciais(0),lerTodos)
+router.get('/',checarCredenciais(2),lerTodos)
 router.put('/:produto',editar)
 router.delete('/:produto',deletar)
+
+router.put('/:produto/atrelar',atrelarEscolha)
+router.delete('/:produto/remover',removerEscolha)
 
 module.exports = router

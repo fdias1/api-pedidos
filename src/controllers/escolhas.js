@@ -28,11 +28,6 @@ const criar = async (req,res) => {
         listaOpcoes,
         usuario:req.user.id
     })
-    const usuario = await Usuario.findOne({_id:req.user.id})
-    console.log(usuario.escolhas)
-    const escolhas = usuario.escolhas
-    escolhas.push(escolha.id)
-    await Usuario.updateOne({_id:escolha.usuario},{escolhas})
     escolha.save((err,novaEscolha) => {
         if(err) {
             res.status(400).send(err)
@@ -64,6 +59,15 @@ const lerTodos = async (req,res) => {
     }
 }
 
+const lerTodosPorUsuario = async (req,res) => {
+    try {
+        const escolha = await Escolha.find({usuario:req.user.id})
+        res.status(200).send(escolha)
+    } catch (err) {
+        res.status(400).send({message:'Erro ao realizar operação'})
+    }
+}
+
 const editar = async (req,res) => {
     try {
         const updatedEscolha = await Escolha.updateOne({_id:req.params.escolha},req.body)
@@ -75,11 +79,6 @@ const editar = async (req,res) => {
 
 const deletar = async (req,res) => {
     try {
-        const escolha = await Escolha.findOne({_id:req.params.escolha})
-        const usuario = await Usuario.findOne({_id:escolha.usuario})
-        const escolhas = usuario.escolhas
-        const updatedEscolhas = escolhas.filter(idEscolha => idEscolha != req.params.escolha)
-        Usuario.updateOne({_id:escolha.usuario},{escolhas:updatedEscolhas})
         const deletedEscolha = await Escolha.deleteOne({_id:req.params.escolha})
         res.status(200).send(deletedEscolha)
     } catch (err) {
@@ -90,6 +89,7 @@ const deletar = async (req,res) => {
 //rotas
 router.use(checarCredenciais(1))
 router.post('/',criar)
+router.get('/this',lerTodosPorUsuario)
 router.get('/:escolha',ler)
 router.get('/',checarCredenciais(2),lerTodos)
 router.put('/:escolha',editar)

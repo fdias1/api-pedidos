@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const {enderecoSchema, Endereco} = require('./endereco')
+const {enderecoSchema} = require('./endereco')
 
 const telefoneRegExp = /[\d]{11}/
 const nomeRegExp = /^[\w\s]{3,32}$/

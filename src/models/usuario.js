@@ -12,6 +12,7 @@ const usuarioSchema = new mongoose.Schema({
     email:{
         type:String,
         required:true,
+        unique:true
     },
     senha:{
         type:String,
@@ -26,18 +27,6 @@ const usuarioSchema = new mongoose.Schema({
         type:String,
         enum:['cpf','cnpj'],
         required:true,
-    },
-    catalogo:{
-        type:mongoose.Types.ObjectId,
-    },
-    categorias:{
-        type:[mongoose.Types.ObjectId],
-    },
-    produtos:{
-        type:[mongoose.Types.ObjectId],
-    },
-    escolhas:{
-        type:[mongoose.Types.ObjectId],
     },
     dataCriacao:{
         type:Date,

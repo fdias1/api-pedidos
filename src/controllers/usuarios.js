@@ -46,6 +46,19 @@ const ler = async (req,res,next) => {
     }
 }
 
+const lerUsuarioLogado = async (req,res,next) => {
+    try {
+        const usuario = await Usuario.findOne({_id:req.user.id})
+        if (usuario) {
+            res.status(200).send(usuario)
+        } else {
+            res.status(400).send({message:'Usuário não encontrado'})   
+        }
+    } catch (err) {
+        res.status(400).send({message:'Erro ao realizar a operação'})   
+    }
+}
+
 const lerTodos = async (req,res,next) => {
     try {
         const usuarios = await Usuario.find({})
@@ -61,7 +74,7 @@ const lerTodos = async (req,res,next) => {
 
 const editar = async (req,res,next) => {
     try {
-        const updatedUsuario = await Usuario.updateOne(req.params.id,req.body)
+        const updatedUsuario = await Usuario.updateOne({_id:req.params.usuario},req.body)
         res.status(200).send(updatedUsuario)   
     } catch (err) {
         res.status(400).send({message:'Erro ao realizar a operação'})   
@@ -70,7 +83,7 @@ const editar = async (req,res,next) => {
 
 const deletar = async (req,res,next) => {
     try {
-        const deletedUsuario = await Usuario.deleteOne(req.params.id)
+        const deletedUsuario = await Usuario.deleteOne({_id:req.params.usuario})
         res.status(200).send(deletedUsuario)
     } catch (err) {
         res.status(400).send({message:'Erro ao realizar a operação'})   
@@ -80,6 +93,7 @@ const deletar = async (req,res,next) => {
 // configuração das rotas
 router.post('/',criar)
 router.use(checarCredenciais(1))
+router.get('/this',lerUsuarioLogado)
 router.get('/:usuario',ler)
 router.get('/',checarCredenciais(2),lerTodos)
 router.put('/:usuario',editar)
