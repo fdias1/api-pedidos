@@ -1,15 +1,12 @@
 //.env configuration
 process.env.NODE_ENV !== 'prd' ? require('dotenv').config() : null
-
-
-//test
-
 const port = process.env.PORT || 3000
 
 //express
 const express = require('express')
 const { json } = require('express')
 const session = require('express-session')
+const cors = require('cors')
 const app = express()
 
 //auth
@@ -32,6 +29,7 @@ const ExpressSessionConfig = {
     saveUninitialized:false
 }
 
+app.use(cors({origin:true}))
 app.use(json())
 app.use(session(ExpressSessionConfig))
 app.use(passport.initialize())

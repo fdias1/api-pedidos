@@ -1,14 +1,10 @@
 const mongoose = require('mongoose')
 
-const cpfRegExp = /[\d]{11}/
-const cnpjRegExp = /[\d]{14}/
+const cpfRegExp = /^[\d]{11}$/
+const cnpjRegExp = /^[\d]{14}$/
 
 const usuarioSchema = new mongoose.Schema({
     nome:{
-        type:String,
-        required:true,
-    },
-    sobrenome:{
         type:String,
         required:true,
     },

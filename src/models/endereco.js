@@ -1,8 +1,7 @@
 const mongoose = require('mongoose')
 
-const cepRegExp = /[\d]{8}/
+const cepRegExp = /^[\d]{9}$/
 const textoRegExp = /^[\w\W]{0,150}$/
-
 
 const enderecoSchema = new mongoose.Schema({
     cep:{
@@ -18,6 +17,7 @@ const enderecoSchema = new mongoose.Schema({
     complemento:{
         type:String,
         required:true,
+        default:'',
         validade:[textoRegExp,'Texto deve conter até 150 caracteres'],
     },
     bairro:{

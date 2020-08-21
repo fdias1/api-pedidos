@@ -1,14 +1,14 @@
 const mongoose = require('mongoose')
-const {enderecoSchema} = require('./endereco')
-const endereco = require('./endereco')
+const {enderecoSchema} = require('./pedido')
 
-const enderecoSchema = new mongoose.Schema({
+const pedidoSchema = new mongoose.Schema({
     cliente:{
         type:mongoose.Types.ObjectId,
         required:true,
     },
     endereco:{
         type:enderecoSchema,
+        required:true,
     },
     catalogo:{
         type:mongoose.Types.ObjectId,
@@ -23,6 +23,7 @@ const enderecoSchema = new mongoose.Schema({
                         produto:{
                             nome:String,
                             preco:Number,
+                            observacao:String,
                             escolhas:[{
                                 nome:String,
                                 preco:Number,  
@@ -32,11 +33,13 @@ const enderecoSchema = new mongoose.Schema({
                 }
             }]
         }],
-        required:true
+        required:true,
+        default:[],
     },
     total:{
         type:Number,
-        required:true
+        required:true,
+        default:0
     },
     formaEntrega:{
         type:String,
@@ -50,6 +53,6 @@ const enderecoSchema = new mongoose.Schema({
     }
 })
 
-const Endereco = mongoose.model('Endereco', enderecoSchema)
+const Pedido = mongoose.model('Pedido', pedidoSchema)
 
-module.exports = {Endereco, enderecoSchema}
+module.exports = {Pedido, pedidoSchema}

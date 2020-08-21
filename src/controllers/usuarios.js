@@ -8,17 +8,15 @@ const {checarCredenciais} = require('./auth')
 // funções das rotas
 const criar = (req,res) => {
     const {
+        tipoDocumento,
+        documento,
         nome,
-        sobrenome,
         email,
         senha,
-        documento,
-        tipoDocumento,
     } = req.body
 
     const usuario = new Usuario({
         nome,
-        sobrenome,
         email,
         senha:bcrypt.hashSync(senha,10),
         documento,

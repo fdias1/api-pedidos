@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const {enderecoSchema} = require('./endereco')
 
-const telefoneRegExp = /[\d]{11}/
+const telefoneRegExp = /^[\d]{11}$/
 const nomeRegExp = /^[\w\s]{3,32}$/
 
 const clienteSchema = new mongoose.Schema({
@@ -13,6 +13,7 @@ const clienteSchema = new mongoose.Schema({
     },
     enderecos:{
         type:[enderecoSchema],
+        required:true,
         default:[],
     },
     telefone:{
