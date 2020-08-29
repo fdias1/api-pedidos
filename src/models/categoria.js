@@ -16,7 +16,6 @@ const categoriaSchema = new mongoose.Schema({
     usuario:{
         type:mongoose.Types.ObjectId,
         required:true,
-        default:[],
     },
     dataCriacao:{
         type:Date,

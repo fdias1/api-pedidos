@@ -12,7 +12,7 @@ const clienteSchema = new mongoose.Schema({
 
     },
     enderecos:{
-        type:[enderecoSchema],
+        type:[mongoose.Types.ObjectId],
         required:true,
         default:[],
     },

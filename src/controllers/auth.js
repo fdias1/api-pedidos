@@ -10,7 +10,7 @@ const Usuario = require('../models/usuario')
 const autenticar = async (email, senha, done) => {
     try {
         if (!email || !senha) {
-            return done(null,false,{message:'É necessário preencher usuário e senha'})
+            return done(null,false)
         }
         const usuario = await Usuario.findOne({email})
         if (usuario) {
@@ -18,10 +18,10 @@ const autenticar = async (email, senha, done) => {
             if (autenticado) {
                 return done(null,usuario)
             } else {
-                return done(null,false,{message:'Usuário ou senha incorretos'})
+                return done(null,false)
             }
         } else {
-            return done(null,false,{message:'Usuário ou senha incorretos'})
+            return done(null,false)
         }
     } catch (err) {
         done(err)
@@ -43,7 +43,7 @@ passport.deserializeUser(async (id,done) => {
 // funções 
 const logOut = (req,res) => {
     req.logOut()
-    res.status(200).send({message:"sessão encerrada"})
+    res.status(200).send({ok:true,mensagem:null,retorno:"sessão encerrada"})
 }
 
 /**
@@ -65,12 +65,14 @@ const logOut = (req,res) => {
                 credencial = 2
             }
         }
-        credencial >= nivelNecessario ? next() : res.status(401).send({message:'não autorizado'})
+        credencial >= nivelNecessario ? next() : res.status(401).send({ok:false,retorno:null,mensagem:'não autorizado'})
     }
     return auth
  }
+
 // configuração das rotas
-router.post('/login',passport.authenticate('local'),(req,res) => res.send({message:'Login realizado com sucesso'}))
+router.post('/login',passport.authenticate('local'),(req,res) => res.send({ok:true,mensagem:null,retorno:'Login realizado com sucesso'}))
+
 router.delete('/logout',logOut)
 
 module.exports = {router,checarCredenciais}

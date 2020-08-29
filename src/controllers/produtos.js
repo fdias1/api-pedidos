@@ -24,9 +24,9 @@ const criar = async (req,res) => {
     })
     produto.save((err,novoProduto) => {
         if(err) {
-            res.status(400).send(err)
+            res.status(400).send({ok:false,retorno:null,mensagem:err})
         } else {
-            res.status(200).send(novoProduto)
+            res.status(200).send({ok:true,mensagem:null,retorno:novoProduto})
         }
     })
 }
@@ -37,46 +37,48 @@ const ler = async (req,res) => {
         if (produto) {
             res.status(200).send(produto)
         } else {
-            res.status(400).send({message:'produto não encontrada'})
+            res.status(400).send({ok:true,mensagem:null,retorno:'produto não encontrada'})
         }
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 const lerTodos = async (req,res) => {
     try {
         const produto = await Produto.find({})
-        res.status(200).send(produto)
+        res.status(200).send({ok:true,mensagem:null,retorno:produto})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 const lerTodosPorUsuario = async (req,res) => {
     try {
         const produto = await Produto.find({usuario:req.user.id})
-        res.status(200).send(produto)
+        res.status(200).send({ok:true,produto})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 const editar = async (req,res) => {
     try {
-        const updatedProduto = await Produto.updateOne({_id:req.params.produto},req.body)
-        res.status(200).send(updatedProduto)
+        await Produto.updateOne({_id:req.params.produto},req.body)
+        const updatedProduto = await Produto.findOne({_id:req.params.produto})
+        res.status(200).send({ok:true,mensagem:null,retorno:updatedProduto})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 const deletar = async (req,res) => {
     try {
-        const deletedProduto = await produto.deleteOne({_id:req.params.produto})
-        res.status(200).send(deletedProduto)
+        const deletedProduto = await produto.findOne({_id:req.params.produto})
+        await produto.deleteOne({_id:req.params.produto})
+        res.status(200).send({ok:true,mensagem:null,retorno:deletedProduto})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
@@ -86,9 +88,9 @@ const atrelarEscolha = async (req,res) => {
         const escolhas = produto.escolhas
         escolhas.push(req.query.escolha)
         await Produto.updateOne({_id:req.params.produto},{escolhas})
-        res.status(200).send({message:"Escolha atrelada"})
+        res.status(200).send({ok:true,mensagem:null,retorno:"Escolha atrelada"})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
@@ -98,9 +100,9 @@ const removerEscolha = async (req,res) => {
         let escolhas = produto.escolhas
         escolhas = escolhas.filter(escolha => escolha != req.query.escolha)
         await Produto.updateOne({_id:req.params.produto},{escolhas})
-        res.status(200).send({message:"Escolha removida"})
+        res.status(200).send({ok:true,mensagem:null,retorno:"Escolha removida"})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 

@@ -16,9 +16,9 @@ const criar = async (req,res) => {
     })
     categoria.save((err,novaCategoria) => {
         if(err) {
-            res.status(400).send(err)
+            res.status(400).send({ok:false,retorno:null,mensagem:err})
         } else {
-            res.status(200).send(novaCategoria)
+            res.status(200).send({ok:true,mensagem:null,retorno:novaCategoria})
         }
     })
 }
@@ -27,48 +27,50 @@ const ler = async (req,res) => {
     try {
         const categoria = await Categoria.findOne({_id:req.params.categoria})
         if (categoria) {
-            res.status(200).send(categoria)
+            res.status(200).send({ok:true,mensagem:null,retorno:categoria})
         } else {
-            res.status(400).send({message:'categoria não encontrada'})
+            res.status(400).send({ok:false,retorno:null,mensagem:'categoria não encontrada'})
         }
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 const lerTodos = async (req,res) => {
     try {
         const categoria = await Categoria.find({})
-        res.status(200).send(categoria)
+        res.status(200).send({ok:true,mensagem:null,retorno:categoria})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 const lerTodosPorUsuario = async (req,res) => {
     try {
         const categoria = await Categoria.find({usuario:req.user._id})
-        res.status(200).send(categoria)
+        res.status(200).send({ok:true,mensagem:null,retorno:categoria})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 const editar = async (req,res) => {
     try {
-        const updatedCategoria = await Categoria.updateOne({_id:req.params.categoria},req.body)
-        res.status(200).send(updatedCategoria)
+        await Categoria.updateOne({_id:req.params.categoria},req.body)
+        const updatedCategoria = await Categoria.findOne({_id:req.params.categoria})
+        res.status(200).send({ok:true,mensagem:null,retorno:updatedCategoria})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 const deletar = async (req,res) => {
     try {
-        const deletedCategoria = await Categoria.deleteOne({_id:req.params.categoria})
-        res.status(200).send(deletedCategoria)
+        const deletedCategoria = await Categoria.findOne({_id:req.params.categoria})
+        await Categoria.deleteOne({_id:req.params.categoria})
+        res.status(200).send({ok:true,mensagem:null,retorno:deletedCategoria})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
@@ -78,9 +80,9 @@ const atrelarProduto = async (req,res) => {
         const produtos = categoria.produtos
         produtos.push(req.query.produto)
         await Categoria.updateOne({_id:req.params.categoria},{produtos})
-        res.status(200).send({message:"Produto atrelado"})
+        res.status(200).send({ok:true,mensagem:null,retorno:"Produto atrelado"})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
@@ -90,9 +92,9 @@ const removerProduto = async (req,res) => {
         let produtos = categoria.produtos
         produtos = produtos.filter(produto => produto != req.query.produto)
         await Categoria.updateOne({_id:req.params.categoria},{produtos})
-        res.status(200).send({message:"Produto removido"})
+        res.status(200).send({ok:true,mensagem:null,retorno:"Produto removido"})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 

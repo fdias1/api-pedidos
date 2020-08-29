@@ -24,9 +24,9 @@ const criar = (req,res) => {
     })
     usuario.save((err,novoUsuario) => {
         if(err) {
-            res.status(400).send(err)
+            res.status(400).send({ok:false,retorno:null,mensagem:err})
         } else {
-            res.status(200).send(novoUsuario)
+            res.status(200).send({ok:true,mensagem:null,retorno:novoUsuario})
         }
     })
 }
@@ -35,12 +35,12 @@ const ler = async (req,res,next) => {
     try {
         const usuario = await Usuario.findOne({_id:req.params.usuario})
         if (usuario) {
-            res.status(200).send(usuario)
+            res.status(200).send({ok:true,mensagem:null,retorno:usuario})
         } else {
-            res.status(400).send({message:'Usuário não encontrado'})   
+            res.status(400).send({ok:false,retorno:null,mensagem:'Usuário não encontrado'})   
         }
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar a operação'})   
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar a operação'})   
     }
 }
 
@@ -48,12 +48,12 @@ const lerUsuarioLogado = async (req,res,next) => {
     try {
         const usuario = await Usuario.findOne({_id:req.user.id})
         if (usuario) {
-            res.status(200).send(usuario)
+            res.status(200).send({ok:true,mensagem:null,retorno:usuario})
         } else {
-            res.status(400).send({message:'Usuário não encontrado'})   
+            res.status(400).send({ok:false,retorno:null,mensagem:'Usuário não encontrado'})   
         }
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar a operação'})   
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar a operação'})   
     }
 }
 
@@ -61,30 +61,30 @@ const lerTodos = async (req,res,next) => {
     try {
         const usuarios = await Usuario.find({})
         if (usuarios) {
-            res.status(200).send(usuarios)
+            res.status(200).send({ok:true,mensagem:null,retorno:usuarios})
         } else {
-            res.status(400).send({message:'Não foram encontrados usuarios'})   
+            res.status(400).send({ok:false,retorno:null,mensagem:'Não foram encontrados usuarios'})   
         }
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar a operação'})   
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar a operação'})   
     }
 }
 
 const editar = async (req,res,next) => {
     try {
         const updatedUsuario = await Usuario.updateOne({_id:req.params.usuario},req.body)
-        res.status(200).send(updatedUsuario)   
+        res.status(200).send({ok:true,mensagem:null,retorno:updatedUsuario})   
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar a operação'})   
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar a operação'})   
     }
 }
 
 const deletar = async (req,res,next) => {
     try {
         const deletedUsuario = await Usuario.deleteOne({_id:req.params.usuario})
-        res.status(200).send(deletedUsuario)
+        res.status(200).send({ok:true,mensagem:null,retorno:deletedUsuario})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar a operação'})   
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar a operação'})   
     }
 }
 

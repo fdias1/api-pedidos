@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const {enderecoSchema} = require('./pedido')
+const {enderecoSchema} = require('./endereco')
 
 const pedidoSchema = new mongoose.Schema({
     cliente:{

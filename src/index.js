@@ -38,8 +38,8 @@ app.use(passport.session())
 //Controllers
 const auth = require('./controllers/auth').router
 const usuarios = require('./controllers/usuarios')
-const clientes = require('./controllers/clientes')
-const escolhas = require('./controllers/escolhas')
+const clientes = require('./controllers/clientesCopy')
+const escolhas = require('./controllers/escolhasCopy')
 const produtos = require('./controllers/produtos')
 const categorias = require('./controllers/categorias')
 const catalogos = require('./controllers/catalogos')

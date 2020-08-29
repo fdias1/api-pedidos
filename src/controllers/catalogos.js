@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const Catalogo = require('../models/catalogo')
+const {Pedido} = require('../models/pedido')
 const {Endereco} = require('../models/endereco')
 const {checarCredenciais} = require('./auth')
 
@@ -45,9 +46,9 @@ const criar = async (req,res) => {
     })
     catalogo.save((err,novaCatalogo) => {
         if(err) {
-            res.status(400).send(err)
+            res.status(400).send({ok:false,retorno:null,mensagem:err})
         } else {
-            res.status(200).send(novaCatalogo)
+            res.status(200).send({ok:true,mensagem:null,retorno:novaCatalogo})
         }
     })
 }
@@ -56,48 +57,51 @@ const ler = async (req,res) => {
     try {
         const catalogo = await Catalogo.findOne({_id:req.params.catalogo})
         if (catalogo) {
-            res.status(200).send(catalogo)
+            res.status(200).send({ok:true,mensagem:null,retorno:catalogo})
         } else {
-            res.status(400).send({message:'catalogo não encontrado'})
+            res.status(400).send({ok:false,retorno:null,mensagem:'catalogo não encontrado'})
         }
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 const lerTodos = async (req,res) => {
     try {
         const catalogo = await Catalogo.find({})
-        res.status(200).send(catalogo)
+        res.status(200).send({ok:true,mensagem:null,retorno:catalogo})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 const lerTodosPorUsuario = async (req,res) => {
     try {
         const catalogo = await Catalogo.find({usuario:req.user._id})
-        res.status(200).send(catalogo)
+        res.status(200).send({ok:true,mensagem:null,retorno:catalogo})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 const editar = async (req,res) => {
     try {
-        const updatedCatalogo = await Catalogo.updateOne({_id:req.params.catalogo},req.body)
-        res.status(200).send(updatedCatalogo)
+        await Catalogo.updateOne({_id:req.params.catalogo},req.body)
+        const updatedCatalogo = await Catalogo.findOne({_id:req.params.catalogo})
+        res.status(200).send({ok:true,mensagem:null,retorno:updatedCatalogo})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 const deletar = async (req,res) => {
     try {
-        const deletedCatalogo = await Catalogo.deleteOne({_id:req.params.catalogo})
-        res.status(200).send(deletedCatalogo)
+        const deletedCatalogo = await Catalogo.findOne({_id:req.params.catalogo})
+        if (!deletedCatalogo) throw new Error('Inexistente')
+        await Catalogo.deleteOne({_id:req.params.catalogo})
+        res.status(200).send({ok:true,mensagem:null,retorno:deletedCatalogo})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
@@ -107,9 +111,9 @@ const atrelarCategoria = async (req,res) => {
         const categorias = catalogo.categorias
         categorias.push(req.query.categoria)
         await Catalogo.updateOne({_id:req.params.catalogo},{categorias})
-        res.status(200).send({message:"Categoria atrelada"})
+        res.status(200).send({ok:true,mensagem:null,retorno:"Categoria atrelada"})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
@@ -119,9 +123,9 @@ const removerCategoria = async (req,res) => {
         let categorias = catalogo.categorias
         categorias = categorias.filter(categoria => categoria != req.query.categoria)
         await Catalogo.updateOne({_id:req.params.catalogo},{categorias})
-        res.status(200).send({message:"Categoria removida"})
+        res.status(200).send({ok:true,mensagem:null,retorno:"Categoria removida"})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
@@ -131,9 +135,9 @@ const atrelarDestaque = async (req,res) => {
         const destaques = catalogo.destaques
         destaques.push(req.query.destaque)
         await Catalogo.updateOne({_id:req.params.catalogo},{destaques})
-        res.status(200).send({message:"Destaque adicionado"})
+        res.status(200).send({ok:true,mensagem:null,retorno:"Destaque adicionado"})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
@@ -143,9 +147,18 @@ const removerDestaque = async (req,res) => {
         let destaques = catalogo.destaques
         destaques = destaques.filter(destaque => destaque != req.query.destaque)
         await Catalogo.updateOne({_id:req.params.catalogo},{destaques})
-        res.status(200).send({message:"Destaque removido"})
+        res.status(200).send({ok:true,mensagem:null,retorno:"Destaque removido"})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
+    }
+}
+
+const listarPedidos = async (req,res) => {
+    try{
+        const pedidos = await Pedido.find({catalogo:req.params.catalogo})
+        res.status(200).send({ok:true,mensagem:null,retorno:pedidos})
+    } catch(err) {
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar o processo'})
     }
 }
 
@@ -163,5 +176,7 @@ router.delete('/:catalogo/removercategoria',removerCategoria)
 
 router.put('/:catalogo/atrelardestaque',atrelarDestaque)
 router.delete('/:catalogo/removerdestaque',removerDestaque)
+
+router.get('/:catalogo/pedidos',listarPedidos)
 
 module.exports = router

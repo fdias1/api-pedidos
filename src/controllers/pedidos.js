@@ -1,9 +1,3 @@
-/**
- cliente
- pedido
- formaEntrega 
- */
-
 const express = require('express')
 const router = express.Router()
 const Pedido = require('../models/pedido')
@@ -25,9 +19,9 @@ const criar = async (req,res) => {
     })
     pedido.save((err,novaPedido) => {
         if(err) {
-            res.status(400).send(err)
+            res.status(400).send({ok:false,retorno:null,mensagem:err})
         } else {
-            res.status(200).send(novaPedido)
+            res.status(200).send({ok:true,mensagem:null,retorno:novaPedido})
         }
     })
 }
@@ -38,44 +32,45 @@ const ler = async (req,res) => {
         if (pedido) {
             res.status(200).send(pedido)
         } else {
-            res.status(400).send({message:'pedido não encontrado'})
+            res.status(400).send({km:true,mensagem:'pedido não encontrado'})
         }
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 const lerTodos = async (req,res) => {
     try {
         const pedido = await Pedido.find({})
-        res.status(200).send(pedido)
+        res.status(200).send({ok:true,mensagem:null,retorno:pedido})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 const editar = async (req,res) => {
     try {
-        const updatedPedido = await Pedido.updateOne({_id:req.params.pedido},req.body)
-        res.status(200).send(updatedPedido)
+        await Pedido.updateOne({_id:req.params.pedido},req.body)
+        const updatedPedido = await Pedido.findOne({_id:req.params.pedido})
+        res.status(200).send({ok:true,mensagem:null,retorno:updatedPedido})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 const deletar = async (req,res) => {
     try {
-        const deletedPedido = await Pedido.deleteOne({_id:req.params.pedido})
-        res.status(200).send(deletedPedido)
+        const deletedPedido = await Pedido.findOne({_id:req.params.pedido})
+        await Pedido.deleteOne({_id:req.params.pedido})
+        res.status(200).send({ok:true,menasgem:deletedPedido})
     } catch (err) {
-        res.status(400).send({message:'Erro ao realizar operação'})
+        res.status(400).send({ok:false,retorno:null,mensagem:'Erro ao realizar operação'})
     }
 }
 
 //rotas
 router.use(checarCredenciais(1))
 router.post('/',criar)
-router.get('/this',lerTodosPorUsuario)
 router.get('/:pedido',ler)
 router.get('/',checarCredenciais(2),lerTodos)
 router.put('/:pedido',editar)
